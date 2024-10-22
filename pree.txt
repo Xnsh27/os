@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_PROCESSES 10
+
+typedef struct {
+    int pid;           // Process ID
+    int burstTime;     // Burst Time
+    int remainingTime; // Remaining Time
+    int waitingTime;   // Waiting Time
+    int turnaroundTime; // Turnaround Time
+} Process;
+
+void calculateTimes(Process processes[], int n) {
+    int completed = 0, currentTime = 0, minIndex;
+    bool isCompleted[MAX_PROCESSES] = {false};
+
+    while (completed < n) {
+        minIndex = -1;
+        int minRemainingTime = 9999;
+
+        // Find process with minimum remaining time
+        for (int i = 0; i < n; i++) {
+            if (!isCompleted[i] && processes[i].remainingTime < minRemainingTime && processes[i].remainingTime > 0) {
+                minRemainingTime = processes[i].remainingTime;
+                minIndex = i;
+            }
+        }
+
+        if (minIndex != -1) {
+            processes[minIndex].remainingTime--; // Decrease remaining time
+            currentTime++; // Increase current time
+
+            // If a process is completed
+            if (processes[minIndex].remainingTime == 0) {
+                completed++;
+                isCompleted[minIndex] = true;
+                processes[minIndex].turnaroundTime = currentTime;
+                processes[minIndex].waitingTime = processes[minIndex].turnaroundTime - processes[minIndex].burstTime;
+            }
+        } else {
+            currentTime++; // If no process is ready
+        }
+    }
+}
+
+void printProcesses(Process processes[], int n) {
+    printf("PID\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\n", processes[i].pid, processes[i].burstTime, processes[i].waitingTime, processes[i].turnaroundTime);
+    }
+}
+
+int main() {
+    Process processes[MAX_PROCESSES];
+    int n;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1; // Assign PID
+        printf("Enter Burst Time for Process %d: ", processes[i].pid);
+        scanf("%d", &processes[i].burstTime);
+        processes[i].remainingTime = processes[i].burstTime; // Initialize remaining time
+    }
+
+    calculateTimes(processes, n);
+    printProcesses(processes, n);
+
+    return 0;
+}

@@ -1,0 +1,51 @@
+#include <stdio.h>
+
+void CSCAN(int requests[], int n, int head) {
+    int total_head_movement = 0;
+    int current_position = head;
+
+    // Sort the requests
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (requests[j] > requests[j + 1]) {
+                int temp = requests[j];
+                requests[j] = requests[j + 1];
+                requests[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("CSCAN Disk Scheduling:\n");
+    printf("Order of requests: ");
+
+    // Move to the end
+    for (int i = 0; i < n; i++) {
+        if (requests[i] >= current_position) {
+            for (int j = i; j < n; j++) {
+                printf("%d ", requests[j]);
+                total_head_movement += abs(current_position - requests[j]);
+                current_position = requests[j];
+            }
+            break;
+        }
+    }
+    total_head_movement += abs(current_position - 199); // Assuming 199 is the end
+    current_position = 0; // Jump to start
+    for (int i = 0; i < n; i++) {
+        if (requests[i] >= current_position) {
+            printf("%d ", requests[i]);
+            total_head_movement += abs(current_position - requests[i]);
+            current_position = requests[i];
+        }
+    }
+
+    printf("\nTotal head movement: %d\n", total_head_movement);
+}
+
+int main() {
+    int requests[] = {98, 183, 37, 122, 14, 124, 65, 67};
+    int n = sizeof(requests) / sizeof(requests[0]);
+    int head = 53; // initial head position
+    CSCAN(requests, n, head);
+    return 0;
+}
